@@ -27,6 +27,12 @@ namespace MyVaccine.Core
             return _context.appointments.First(x => x.ic == ic && x.name == name);
         }
 
+
+        public Appointment GetAppointmentbyID(int id)
+        {
+            return _context.appointments.First(x => x.appointment_id == id);
+        }
+
         public Appointment AddAppointment(Appointment appointment)
         {
             _context.Add(appointment);
@@ -39,6 +45,18 @@ namespace MyVaccine.Core
             var dbAppointment = _context.appointments.First(x => x.appointment_id == appointment_id);
             dbAppointment.name = name;
             //dbAppointment.ic = appointment.ic;
+            _context.SaveChanges();
+            return dbAppointment;
+        }
+
+        public Appointment AssignAppointmentDate(int appointment_id, DateTime date)
+        {
+            var dbAppointment = _context.appointments.First(x => x.appointment_id==appointment_id);
+            if(dbAppointment.secondDoseDate == null)
+            {
+                dbAppointment.secondDoseDate = date;
+            }
+            
             _context.SaveChanges();
             return dbAppointment;
         }
@@ -58,5 +76,6 @@ namespace MyVaccine.Core
             _context.SaveChanges();
             return dbAppointment;
         }
+
     }
 }

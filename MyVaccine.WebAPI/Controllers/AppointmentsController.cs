@@ -37,6 +37,20 @@ namespace MyVaccine.WebAPI.Controllers
             
         }
 
+        [HttpGet("GetByID/")]
+        public IActionResult GetAppointmentByID(int id)
+        {
+            var response = _services.GetAppointmentbyID(id);
+            if(response == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(response);
+            }
+        }
+
         [HttpPost]
         public IActionResult addAppointment(Appointment appointment)
         {
@@ -48,6 +62,13 @@ namespace MyVaccine.WebAPI.Controllers
         public IActionResult updateAppointmentNameIC(int id, string name)
         {
             _services.UpdateAppointmentNameIC(id, name);
+            return Ok(_services.GetAppointments());
+        }
+
+        [HttpPut("AssignDate/")]
+        public IActionResult assignAppointmentDate(int id, DateTime date)
+        {
+            _services.AssignAppointmentDate(id, date);
             return Ok(_services.GetAppointments());
         }
 

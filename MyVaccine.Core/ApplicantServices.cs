@@ -47,6 +47,8 @@ namespace MyVaccine.Core
             dbApplicants.phoneNo = applicants.phoneNo;
             dbApplicants.email = applicants.email;
             dbApplicants.address = applicants.address;
+            dbApplicants.firstDose = applicants.firstDose;
+            dbApplicants.secondDose = applicants.secondDose;
 
             _context.SaveChanges();
             return dbApplicants;

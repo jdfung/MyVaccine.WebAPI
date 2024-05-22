@@ -11,7 +11,9 @@ namespace MyVaccine.Core
     {
         List<VaccCentre> GetAllRecords();
         VaccCentre AddNewCentreEntry(VaccCentre vaccCentre);
+        VaccCentre GetVaccCentreByID(int id);
         List<VaccCentre> GetAllStates(string state);
         List<VaccCentre> GetAllStatesAndDistricts(string state, string district);   
+        VaccCentre UpdateVaccCentre(VaccCentre vaccCentre);
     }
 }

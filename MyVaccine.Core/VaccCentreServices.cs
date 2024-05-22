@@ -40,5 +40,23 @@ namespace MyVaccine.Core
             var response = _context.vaccCentres.ToList().FindAll(x => x.state.Equals(state) && x.distrct.Equals(district));
             return response;
         }
+
+        public VaccCentre GetVaccCentreByID(int id)
+        {
+            var response = _context.vaccCentres.First(x => x.centreId == id);
+            return response;
+        }
+
+        public VaccCentre UpdateVaccCentre(VaccCentre vaccCentre)
+        {
+            var vaccCentreDB = _context.vaccCentres.First(x =>x.centreId == vaccCentre.centreId);
+            vaccCentreDB.centreName = vaccCentre.centreName;
+            vaccCentreDB.state = vaccCentre.state;
+            vaccCentreDB.distrct = vaccCentre.distrct;
+            vaccCentreDB.address = vaccCentre.address;
+            _context.SaveChanges();
+
+            return vaccCentreDB;
+        }
     }
 }

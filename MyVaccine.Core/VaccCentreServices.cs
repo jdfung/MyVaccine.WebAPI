@@ -58,5 +58,12 @@ namespace MyVaccine.Core
 
             return vaccCentreDB;
         }
+
+        public void DeleteVaccCentre(int id)
+        {
+            var vaccCenterDB = _context.vaccCentres.First( x => x.centreId == id);
+            _context.vaccCentres.Remove(vaccCenterDB);
+            _context.SaveChanges();
+        }
     }
 }

@@ -11,7 +11,7 @@ namespace MyVaccine.DB
     {
         [Key]
         public int adminId {  get; set; }
-        public string adminName { get; set; }
-        public string adminPassword { get; set; }
+        public string adminUserName { get; set; } = string.Empty;
+        public string adminPasswordHash { get; set; } = string.Empty;
     }
 }

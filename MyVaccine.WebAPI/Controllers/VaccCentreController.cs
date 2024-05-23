@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyVaccine.Core;
 using MyVaccine.DB;
 
@@ -58,7 +59,7 @@ namespace MyVaccine.WebAPI.Controllers
             return Ok(response);
         }
 
-        [HttpPut]
+        [HttpPut, Authorize]
         public IActionResult updateVaccCentre(VaccCentre vaccCentre)
         {
             var response = _services.UpdateVaccCentre(vaccCentre);
@@ -71,11 +72,18 @@ namespace MyVaccine.WebAPI.Controllers
             return Ok(response);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public IActionResult addNewCentreEntry(VaccCentre vaccCentre) {
 
             var response = _services.AddNewCentreEntry(vaccCentre);
             return Ok(response);
+        }
+
+        [HttpDelete, Authorize]
+        public IActionResult deleteCentreEntry(int id)
+        {
+            _services.DeleteVaccCentre(id);
+            return Ok(_services.GetAllRecords());
         }
     }
 }

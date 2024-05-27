@@ -16,7 +16,7 @@ namespace MyVaccine.WebAPI.Controllers
             _services = services;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public IActionResult getAllRecords()
         {
             var response = _services.GetAllRecords();

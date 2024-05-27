@@ -38,7 +38,7 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>{
         ValidateIssuerSigningKey = true,
         ValidateAudience = false,
         ValidateIssuer = false,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value!))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppSettings:AccessToken").Value!))
     };
         
 });
@@ -52,7 +52,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("MyVaccinePolicy",
         builder =>
         {
-            builder.WithOrigins("*").AllowAnyHeader().AllowAnyMethod();
+            builder.WithOrigins("https://localhost:7015/", "http://localhost:3000/").AllowAnyHeader().AllowAnyMethod().SetIsOriginAllowed(origin => true).AllowCredentials();
         });
 });
 

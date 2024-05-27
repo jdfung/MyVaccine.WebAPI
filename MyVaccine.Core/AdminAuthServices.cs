@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MyVaccine.DB;
 using System;
@@ -7,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,30 +29,44 @@ namespace MyVaccine.Core
             _configurations = configurations;
         }
 
-        private string CreateToken(Admin admin)
+        public string CreateAccessToken()
         {
-            //To encode within the token
-            List<Claim> claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, admin.adminUserName)
-            };
-
+           
             //Get the secret key
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurations.Value.Token!));
+            var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurations.Value.AccessToken!));
 
             //signing creds
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+            var Creds = new SigningCredentials(Key, SecurityAlgorithms.HmacSha256Signature);
 
-            var token = new JwtSecurityToken(
-                    claims: claims,
-                    expires: DateTime.Now.AddDays(1),
-                    signingCredentials: creds
+            var accessToken = new JwtSecurityToken(
+                    expires: DateTime.Now.AddSeconds(30),
+                    signingCredentials: Creds
                 );
 
             //Write the token
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            var jwtAccess = new JwtSecurityTokenHandler().WriteToken(accessToken);
+            return jwtAccess;
+        }
 
-            return jwt;
+        private string CreateRefreshToken()
+        {
+            
+
+            //Get the secret key
+            var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurations.Value.AccessToken!));
+
+            //signing creds
+            var Creds = new SigningCredentials(Key, SecurityAlgorithms.HmacSha256Signature);
+
+            var RefreshToken = new JwtSecurityToken(
+                    expires: DateTime.Now.AddDays(1),
+                    signingCredentials: Creds
+                );
+
+            //Write the token
+            var jwtRefresh = new JwtSecurityTokenHandler().WriteToken(RefreshToken);
+
+            return jwtRefresh;
         }
 
         public Admin RegisterAdmin(string username, string password)
@@ -67,7 +84,7 @@ namespace MyVaccine.Core
             return admin;
         }
 
-        public string LoginAdmin(string username, string password)
+        public string[] LoginAdmin(string username, string password)
         {
             var adminData = _context.admins.First(x => x.adminUserName == username);
             if (!BCrypt.Net.BCrypt.Verify(password, adminData.adminPasswordHash))
@@ -75,9 +92,55 @@ namespace MyVaccine.Core
                 throw new InvalidOperationException("admin does not exist");
             }
 
-            string token = CreateToken(adminData);
+            string AccessToken = CreateAccessToken();
+            string RefreshToken = CreateRefreshToken();
 
-            return token;
+            return [AccessToken, RefreshToken];
         }
+
+        /* public string RefreshToken(string accessToken)
+         {
+             bool validateToken = ValidateToken(accessToken);
+             if(!validateToken)
+             {
+                 throw new InvalidOperationException("Invalid access token");
+             }
+
+             var refreshKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurations.Value.AccessToken!));
+
+             //signing creds
+             var refreshCreds = new SigningCredentials(refreshKey, SecurityAlgorithms.HmacSha256Signature);
+
+             var refreshToken = new JwtSecurityToken(
+                 expires: DateTime.Now.AddSeconds(30),
+                 signingCredentials: refreshCreds
+             );
+
+             var jwtRefresh = new JwtSecurityTokenHandler().WriteToken(refreshToken);
+
+             return jwtRefresh;
+         }*/
+
+        public bool ValidateToken(string Token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var validationParameters = GetValidationParameters();
+
+            SecurityToken validatedToken;
+            IPrincipal principal = tokenHandler.ValidateToken(Token, validationParameters, out validatedToken);
+            return true;
+        }
+
+        private TokenValidationParameters GetValidationParameters()
+        {
+            return new TokenValidationParameters()
+            {
+                ValidateIssuerSigningKey = true,
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurations.Value.AccessToken!)) // The same key as the one that generate the token
+            };
+        }
+
     }
 }

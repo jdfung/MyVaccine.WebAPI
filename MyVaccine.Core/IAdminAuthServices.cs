@@ -13,6 +13,8 @@ namespace MyVaccine.Core
     {
 
         Admin RegisterAdmin(string username, string password);
-        string LoginAdmin(string username, string password);
+        string[] LoginAdmin(string username, string password);
+        string CreateAccessToken();
+        bool ValidateToken(string Token);
     }
 }

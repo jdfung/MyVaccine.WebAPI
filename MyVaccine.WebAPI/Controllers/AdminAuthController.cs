@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using MyVaccine.Core;
@@ -13,6 +14,7 @@ namespace MyVaccine.WebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [EnableCors("MyVaccinePolicy")]
     public class AdminAuthController : Controller
     {
         private readonly IAdminAuthServices _services;
@@ -45,13 +47,33 @@ namespace MyVaccine.WebAPI.Controllers
         public IActionResult RefreshToken()
         {
             var refreshToken = HttpContext.Request.Cookies["RefreshToken"];
+            if(refreshToken == null)
+            {
+                return Unauthorized();
+            }
             var validate = _services.ValidateToken(refreshToken);
             if (!validate)
             {
-                return NotFound();
+                return Unauthorized();
             }
             var accessToken = _services.CreateAccessToken();
             return Ok(new { AccessToken = accessToken });
+        }
+
+        [HttpPost("Logout")]
+        public IActionResult Logout()
+        {
+            var cookie = new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddDays(-1),
+                HttpOnly = true,
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None,
+                Secure = true,
+                Path = "/"
+            };
+            Response.Cookies.Append("RefreshToken", string.Empty, cookie);
+
+            return Ok(new { message = "Refresh Token is removed" });
         }
 
         private void SetRefreshTokenCookie(string refreshToken)

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MyVaccine.Core;
 using MyVaccine.DB;
 
@@ -15,7 +16,7 @@ namespace MyVaccine.WebAPI.Controllers
             _services = appointmentServices;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public IActionResult GetAppointments()
         {
             return Ok(_services.GetAppointments());
@@ -37,7 +38,7 @@ namespace MyVaccine.WebAPI.Controllers
             
         }
 
-        [HttpGet("GetByID/")]
+        [HttpGet("GetByID/"), Authorize]
         public IActionResult GetAppointmentByID(int id)
         {
             var response = _services.GetAppointmentbyID(id);
@@ -65,7 +66,7 @@ namespace MyVaccine.WebAPI.Controllers
             return Ok(_services.GetAppointments());
         }
 
-        [HttpPut("AssignDate/")]
+        [HttpPut("AssignDate/"), Authorize]
         public IActionResult assignAppointmentDate(int id, DateTime date)
         {
             _services.AssignAppointmentDate(id, date);

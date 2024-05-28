@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyVaccine.Core;
@@ -17,7 +18,7 @@ namespace MyVaccine.WebAPI.Controllers
             _applicantServices = applicantServices;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public IActionResult GetApplicants()
         {
 

@@ -39,7 +39,7 @@ namespace MyVaccine.Core
             var Creds = new SigningCredentials(Key, SecurityAlgorithms.HmacSha256Signature);
 
             var accessToken = new JwtSecurityToken(
-                    expires: DateTime.Now.AddSeconds(30),
+                    expires: DateTime.Now.AddMinutes(15),
                     signingCredentials: Creds
                 );
 
@@ -51,9 +51,8 @@ namespace MyVaccine.Core
         private string CreateRefreshToken()
         {
             
-
             //Get the secret key
-            var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurations.Value.AccessToken!));
+            var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurations.Value.RefreshToken!));
 
             //signing creds
             var Creds = new SigningCredentials(Key, SecurityAlgorithms.HmacSha256Signature);
@@ -98,29 +97,6 @@ namespace MyVaccine.Core
             return [AccessToken, RefreshToken];
         }
 
-        /* public string RefreshToken(string accessToken)
-         {
-             bool validateToken = ValidateToken(accessToken);
-             if(!validateToken)
-             {
-                 throw new InvalidOperationException("Invalid access token");
-             }
-
-             var refreshKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurations.Value.AccessToken!));
-
-             //signing creds
-             var refreshCreds = new SigningCredentials(refreshKey, SecurityAlgorithms.HmacSha256Signature);
-
-             var refreshToken = new JwtSecurityToken(
-                 expires: DateTime.Now.AddSeconds(30),
-                 signingCredentials: refreshCreds
-             );
-
-             var jwtRefresh = new JwtSecurityTokenHandler().WriteToken(refreshToken);
-
-             return jwtRefresh;
-         }*/
-
         public bool ValidateToken(string Token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -138,7 +114,7 @@ namespace MyVaccine.Core
                 ValidateIssuerSigningKey = true,
                 ValidateAudience = false,
                 ValidateIssuer = false,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurations.Value.AccessToken!)) // The same key as the one that generate the token
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurations.Value.RefreshToken!)) // The same key as the one that generate the token
             };
         }
 
